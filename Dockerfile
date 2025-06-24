@@ -11,8 +11,7 @@ RUN mvn clean package -DskipTests
 # ✅ STEP 2: Jetty base image with Java 17
 FROM jetty:11.0.15-jdk17
 
-# ✅ Copy built WAR into Jetty’s root webapp
-COPY --from=build /app/target/*.war /var/lib/jetty/webapps/root.war
+COPY --from=build /app/target/Attendance_Management_System-1.0-SNAPSHOT.war /var/lib/jetty/webapps/root.war
 
 # ✅ Expose default Jetty port
 EXPOSE 8080
