@@ -2,23 +2,20 @@
 FROM maven:3.9.6-eclipse-temurin-17 AS build
 WORKDIR /app
 
-# ✅ Copy all source files into the container
+# ✅ Copy your whole project
 COPY . .
 
-# ✅ Build the WAR file while skipping tests
+# ✅ Build WAR (skip tests for faster build)
 RUN mvn clean package -DskipTests
 
-# ✅ STEP 2: Use official Jetty image with Java 17
+# ✅ STEP 2: Jetty base image with Java 17
 FROM jetty:11.0.15-jdk17
 
-# ✅ Set working directory to Jetty's webapps folder
-WORKDIR /var/lib/jetty/webapps/
+# ✅ Copy built WAR into Jetty’s root webapp
+COPY --from=build /app/target/*.war /var/lib/jetty/webapps/root.war
 
-# ✅ Copy the built WAR file from build stage into Jetty’s root app
-COPY --from=build /app/target/*.war ./root.war
-
-# ✅ Port exposure (Render uses 8080 by default)
+# ✅ Expose default Jetty port
 EXPOSE 8080
 
-# ✅ Run Jetty server (this was missing before!)
+# ✅ Start Jetty server using built-in launcher
 CMD ["java", "-jar", "/usr/local/jetty/start.jar"]
