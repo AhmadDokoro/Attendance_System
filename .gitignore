@@ -1,0 +1,2 @@
+# Ignore DB properties for safety
+src/main/resources/db.properties
