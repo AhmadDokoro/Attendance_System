@@ -1,29 +1,21 @@
-# STEP 1: Use Maven to build the WAR
+# ✅ STEP 1: Use Maven with Java 17 to build the WAR file
 FROM maven:3.9.6-eclipse-temurin-17 AS build
 WORKDIR /app
 
-# Copy all files to container
+# ✅ Copy all source files into the container
 COPY . .
 
-# Build the WAR file
+# ✅ Build the WAR file while skipping tests
 RUN mvn clean package -DskipTests
 
-# STEP 2: Use Jetty to run the WAR
-FROM eclipse-temurin:17-jdk
-RUN apt-get update && apt-get install -y curl unzip && rm -rf /var/lib/apt/lists/*
-RUN mkdir /opt/jetty
-WORKDIR /opt/jetty
+# ✅ STEP 2: Use official Jetty image with Java 17
+FROM jetty:11.0.15-jdk17
 
-# Download Jetty and extract
-RUN curl -O https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-distribution/11.0.15/jetty-distribution-11.0.15.tar.gz && \
-    tar -xzf jetty-distribution-11.0.15.tar.gz --strip-components=1 && \
-    rm jetty-distribution-11.0.15.tar.gz
+# ✅ Set working directory to Jetty's webapps folder
+WORKDIR /var/lib/jetty/webapps/
 
-# Copy the WAR file from the previous stage into Jetty’s webapps directory
-COPY --from=build /app/target/*.war /opt/jetty/webapps/root.war
+# ✅ Copy the built WAR file from build stage into Jetty’s root app
+COPY --from=build /app/target/*.war ./root.war
 
-# Expose port
+# ✅ Port exposure (Render uses 8080 by default)
 EXPOSE 8080
-
-# Run Jetty
-CMD ["java", "-jar", "start.jar"]
