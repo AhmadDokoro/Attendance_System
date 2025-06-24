@@ -19,3 +19,6 @@ COPY --from=build /app/target/*.war ./root.war
 
 # ✅ Port exposure (Render uses 8080 by default)
 EXPOSE 8080
+
+# ✅ Run Jetty server (this was missing before!)
+CMD ["java", "-jar", "/usr/local/jetty/start.jar"]
